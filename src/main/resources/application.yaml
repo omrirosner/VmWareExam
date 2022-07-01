@@ -1,0 +1,8 @@
+elasticsearch:
+  a:
+    b: a
+  indexSettings:
+    store:
+      name: stores
+      type: store
+      mappingFile: stores_mapping.json
