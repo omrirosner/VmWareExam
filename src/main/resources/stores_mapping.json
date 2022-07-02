@@ -1,0 +1,12 @@
+{
+  "store": {
+    "properties": {
+      "catalogs": {
+        "type": "text"
+      },
+      "owners": {
+        "type": "text"
+      }
+    }
+  }
+}
