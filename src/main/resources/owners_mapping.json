@@ -1,5 +1,5 @@
 {
-  "item": {
+  "owner": {
     "properties": {
       "id": {
         "type": "keyword"
