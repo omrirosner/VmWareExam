@@ -6,3 +6,8 @@ elasticsearch:
       name: stores
       type: store
       mappingFile: stores_mapping.json
+
+spring:
+  jackson:
+    mapper:
+      ACCEPT_CASE_INSENSITIVE_ENUMS : true

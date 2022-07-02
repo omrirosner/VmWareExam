@@ -1,6 +1,9 @@
 {
   "store": {
     "properties": {
+      "id": {
+        "type": "keyword"
+      },
       "catalogs": {
         "type": "text"
       },

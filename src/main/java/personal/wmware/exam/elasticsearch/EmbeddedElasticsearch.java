@@ -21,7 +21,7 @@ import static java.lang.ClassLoader.getSystemResourceAsStream;
 public class EmbeddedElasticsearch {
     private final EmbeddedElasticConfig configuration;
 
-    @Bean
+//    @Bean
     public EmbeddedElastic embbeddedElasticsearch() throws IOException, InterruptedException {
         EmbeddedElastic.Builder builder = EmbeddedElastic.builder()
                 .withElasticVersion("5.0.0")
