@@ -6,8 +6,20 @@ elasticsearch:
       name: stores
       type: store
       mappingFile: stores_mapping.json
+    catalog:
+      name: catalog
+      type: item
+      mappingFile: catalog_mapping.json
+    customer:
+      name: customers
+      type: customer
+      mappingFile: customers_mapping.json
+    owner:
+      name: owners
+      type: owner
+      mappingFile: owners_mapping.json
 
 spring:
   jackson:
     mapper:
-      ACCEPT_CASE_INSENSITIVE_ENUMS : true
+      ACCEPT_CASE_INSENSITIVE_ENUMS: true

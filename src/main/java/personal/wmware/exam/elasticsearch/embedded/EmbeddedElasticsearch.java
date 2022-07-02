@@ -1,11 +1,11 @@
-package personal.wmware.exam.elasticsearch;
+package personal.wmware.exam.elasticsearch.embedded;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import personal.wmware.exam.elasticsearch.EmbeddedElasticConfig.IndexSettings;
+import personal.wmware.exam.elasticsearch.embedded.EmbeddedElasticConfig.IndexSettings;
 import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic;
 import pl.allegro.tech.embeddedelasticsearch.PopularProperties;
 
@@ -21,7 +21,7 @@ import static java.lang.ClassLoader.getSystemResourceAsStream;
 public class EmbeddedElasticsearch {
     private final EmbeddedElasticConfig configuration;
 
-//    @Bean
+    @Bean
     public EmbeddedElastic embbeddedElasticsearch() throws IOException, InterruptedException {
         EmbeddedElastic.Builder builder = EmbeddedElastic.builder()
                 .withElasticVersion("5.0.0")

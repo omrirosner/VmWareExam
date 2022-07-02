@@ -1,4 +1,4 @@
-package personal.wmware.exam.elasticsearch;
+package personal.wmware.exam.elasticsearch.embedded;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

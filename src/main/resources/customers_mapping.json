@@ -1,6 +1,9 @@
 {
   "customer": {
     "properties": {
+      "id": {
+        "type": "keyword"
+      },
       "username": {
         "type": "keyword"
       },
