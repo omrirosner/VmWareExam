@@ -1,0 +1,39 @@
+{
+  "item": {
+    "properties": {
+      "username": {
+        "type": "keyword"
+      },
+      "password": {
+        "type": "keyword"
+      },
+      "payment_methods": {
+        "properties": {
+          "credit_card": {
+            "properties": {
+              "cc_number": {
+                "type": "keyword"
+              },
+              "exp_date": {
+                "type": "date"
+              },
+              "cvv": {
+                "type": "keyword"
+              }
+            }
+          },
+          "paypal": {
+            "properties": {
+              "username": {
+                "type": "keyword"
+              },
+              "password": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

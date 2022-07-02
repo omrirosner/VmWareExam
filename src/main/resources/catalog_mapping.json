@@ -1,0 +1,34 @@
+{
+  "item": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text"
+      },
+      "description": {
+        "type": "text"
+      },
+      "price": {
+        "type": "float"
+      },
+      "stock": {
+        "type": "integer"
+      },
+      "discount_settings": {
+        "properties": {
+          "quantity": {
+            "type": "integer"
+          },
+          "bundling": {
+            "type": "integer"
+          },
+          "discount_percent": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}
