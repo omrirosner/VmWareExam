@@ -28,7 +28,7 @@ import java.util.UUID;
 @Service
 @Log4j2
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class UserController {
+public class UserController extends BaseController{
     private final ElasticsearchClient elasticsearchClient;
 
     @PostMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -48,19 +48,5 @@ public class UserController {
         return id;
     }
 
-    @ExceptionHandler(BindException.class)
-    private ResponseEntity<ActionResponse> handleInvalidRequest(BindException ex) {
-        FieldError fieldError = ex.getFieldError();
-        String message = String.format("%s %s", Objects.requireNonNull(fieldError).getField(), fieldError.getDefaultMessage());
-        ActionResponse actionResponse = new ActionResponse(message, false);
-        log.error("an error has occurred", ex);
-        return new ResponseEntity<>(actionResponse, HttpStatus.BAD_REQUEST);
-    }
 
-    @ExceptionHandler(Exception.class)
-    private ResponseEntity<ActionResponse> handleUnexpectedError(Exception ex) {
-        ActionResponse actionResponse = new ActionResponse("an unexpected error has accursed. Check the logs for more details", false);
-        log.error("an error has occurred", ex);
-        return new ResponseEntity<>(actionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
 }

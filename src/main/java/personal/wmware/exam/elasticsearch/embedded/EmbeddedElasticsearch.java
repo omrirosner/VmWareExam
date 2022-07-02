@@ -2,6 +2,9 @@ package personal.wmware.exam.elasticsearch.embedded;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -14,6 +17,7 @@ import java.io.InputStream;
 import java.util.Objects;
 
 import static java.lang.ClassLoader.getSystemResourceAsStream;
+import static pl.allegro.tech.embeddedelasticsearch.IndexSettings.*;
 
 @Component
 @Log4j2
@@ -27,19 +31,31 @@ public class EmbeddedElasticsearch {
                 .withElasticVersion("5.0.0")
                 .withSetting(PopularProperties.TRANSPORT_TCP_PORT, 9350)
                 .withSetting(PopularProperties.CLUSTER_NAME, "local_cluster")
-                .withSetting("path.data", "target/elasticsearch");
+                .withSetting("path.data", "target/elasticsearch")
+                .withTemplate("catalog", Objects.requireNonNull(getSystemResourceAsStream("catalog_template.json")));
+
+        builder = builder.withIndex("catalogfdsf");
 
         for (IndexSettings settings : configuration.getIndexSettings().values()) {
             builder = this.addIndex(builder, settings.getName(), settings.getType(), settings.getMappingFile());
         }
 
-        return builder.build().start();
+        EmbeddedElastic start = builder.build().start();
+        start.createTemplates();
+        return start;
     }
+
+//    @Bean
+//    RestHighLevelClient restHighLevelClient() {
+//        return new RestHighLevelClient(
+//                RestClient.builder(
+//                        new HttpHost("localhost", 9200, "http")).build());
+//    }
 
     private EmbeddedElastic.Builder addIndex(EmbeddedElastic.Builder builder, String name, String type, String pathToMapping) throws IOException {
         InputStream inputStream = getSystemResourceAsStream(pathToMapping);
         try {
-            return builder.withIndex(name, pl.allegro.tech.embeddedelasticsearch.IndexSettings.builder()
+            return builder.withIndex(name, builder()
                     .withType(type, Objects.requireNonNull(inputStream))
                     .build());
         } catch (IOException e) {

@@ -1,15 +1,9 @@
 elasticsearch:
-  a:
-    b: a
   indexSettings:
     store:
       name: stores
       type: store
       mappingFile: stores_mapping.json
-    catalog:
-      name: catalog
-      type: item
-      mappingFile: catalog_mapping.json
     customer:
       name: customers
       type: customer
@@ -18,6 +12,9 @@ elasticsearch:
       name: owners
       type: owner
       mappingFile: owners_mapping.json
+
+common:
+  catalogPrefix: catalog_
 
 spring:
   jackson:

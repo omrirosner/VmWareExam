@@ -11,8 +11,6 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class CreateStoreUserRequest {
     @NotNull
-    private String storeId;
-    @NotNull
     private String username;
     @NotNull
     private String password;
