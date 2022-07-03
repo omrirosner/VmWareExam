@@ -28,10 +28,11 @@ public class CatalogController extends BaseController {
     private final ElasticsearchClient elasticsearchClient;
     private final CommonConfig config;
     private final EmbeddedElasticConfig elasticConfig;
+    private final Validator validator;
 
     @PostMapping(value = "/catalog/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ActionResponse createCatalog(@RequestHeader("userId") String userId, @RequestHeader("password") String password, @Valid @RequestBody CatalogRequest request) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
-        if (this.checkForOwner(userId, password)) {
+        if (this.validator.checkForOwner(userId, password)) {
             String catalogIndex = this.insertNewCatalog(request.getCatalogName());
             return new ActionResponse(String.format("created index %s", catalogIndex), true);
         } else {
@@ -41,7 +42,7 @@ public class CatalogController extends BaseController {
 
     @DeleteMapping(value = "/catalog/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ActionResponse deleteCatalog(@RequestHeader("userId") String userId, @RequestHeader("password") String password, @Valid @RequestBody CatalogRequest request) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
-        if (this.checkForOwner(userId, password)) {
+        if (this.validator.checkForOwner(userId, password)) {
             boolean success = this.deleteCatalog(request.getCatalogName());
             if (success) {
                 return new ActionResponse("deleted catalog", true);
@@ -72,14 +73,6 @@ public class CatalogController extends BaseController {
             log.error("failed to delete index", e);
         }
         return false;
-    }
-
-    private boolean checkForOwner(String ownerId, String password) throws InterruptedException, ExecutionException, TimeoutException {
-        SearchHits hits = this.elasticsearchClient
-                .searchByField(elasticConfig.getIndexSettings().get(Consts.OWNERS_SETTINGS).getName(),
-                        Map.of("id", ownerId, "password", password)).getHits();
-
-        return hits.getTotalHits().value > 0;
     }
 
 

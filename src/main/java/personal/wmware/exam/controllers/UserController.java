@@ -47,6 +47,4 @@ public class UserController extends BaseController{
                 id);
         return id;
     }
-
-
 }

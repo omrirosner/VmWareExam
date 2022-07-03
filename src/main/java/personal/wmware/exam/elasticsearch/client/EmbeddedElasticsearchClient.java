@@ -9,6 +9,7 @@ import org.apache.lucene.queryparser.surround.query.SrndQuery;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -44,8 +45,7 @@ public class EmbeddedElasticsearchClient implements ElasticsearchClient {
 
     public <T> void insertDocument(T object, String index, String type, String id) throws JsonProcessingException {
         String content = mapper.writeValueAsString(object);
-        Map<CharSequence, CharSequence> document = Map.of(id, content);
-        this.client.index(new IndexRequest(index).type(type).source(content, XContentType.JSON));
+        this.client.index(new IndexRequest(index).id(id).type(type).source(content, XContentType.JSON));
     }
 
     public void createIndex(String name) throws ExecutionException, InterruptedException {
@@ -59,6 +59,10 @@ public class EmbeddedElasticsearchClient implements ElasticsearchClient {
             return true;
         }
         return false;
+    }
+
+    public void deleteDocument(String index, String id) throws InterruptedException, ExecutionException, TimeoutException {
+        this.client.delete(new DeleteRequest(index,id)).get(5, TimeUnit.SECONDS);
     }
 
     public SearchResponse searchByField(String index, Map<String, String> query) throws InterruptedException, ExecutionException, TimeoutException {

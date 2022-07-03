@@ -18,4 +18,7 @@ public interface ElasticsearchClient {
     public <T> void createIndex(String name) throws ExecutionException, InterruptedException;
 
     public boolean deleteIndex(String name) throws ExecutionException, InterruptedException;
-    }
+
+    public void deleteDocument(String index, String id) throws InterruptedException, ExecutionException, TimeoutException;
+
+}
