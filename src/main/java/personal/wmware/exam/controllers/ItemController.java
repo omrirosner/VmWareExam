@@ -66,6 +66,7 @@ public class ItemController extends BaseController {
     }
 
     private void insertNewItem(String catalog, ItemModel item, String id) throws JsonProcessingException {
+        item.setId(id);
         this.elasticsearchClient.insertDocument(
                 item,
                 String.format("%s%s", this.config.getCatalogPrefix(), catalog), "item",

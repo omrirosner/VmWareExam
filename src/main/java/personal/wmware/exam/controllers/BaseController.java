@@ -35,7 +35,7 @@ public abstract class BaseController {
 
     @ExceptionHandler(Exception.class)
     private ResponseEntity<ActionResponse> handleUnexpectedError(Exception ex) {
-        ActionResponse actionResponse = new ActionResponse("an unexpected error has accursed. Check the logs for more details", false);
+        ActionResponse actionResponse = new ActionResponse("an unexpected error has occurred. Check the logs for more details", false);
         log.error("an error has occurred", ex);
         return new ResponseEntity<>(actionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
