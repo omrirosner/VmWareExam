@@ -13,6 +13,7 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -46,6 +47,11 @@ public class EmbeddedElasticsearchClient implements ElasticsearchClient {
     public <T> void insertDocument(T object, String index, String type, String id) throws JsonProcessingException {
         String content = mapper.writeValueAsString(object);
         this.client.index(new IndexRequest(index).id(id).type(type).source(content, XContentType.JSON));
+    }
+
+    public <T> void updateJsonField(T object, String index, String id) throws JsonProcessingException {
+        String content = mapper.writeValueAsString(object);
+        this.client.update(new UpdateRequest(index, id).doc(content, XContentType.JSON));
     }
 
     public void createIndex(String name) throws ExecutionException, InterruptedException {

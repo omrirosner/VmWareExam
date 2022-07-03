@@ -11,6 +11,8 @@ import java.util.concurrent.TimeoutException;
 public interface ElasticsearchClient {
     <T> void insertDocument(T object, String index, String type, String id) throws JsonProcessingException;
 
+    public <T> void updateJsonField(T object, String index, String id) throws JsonProcessingException;
+
     IndexSettings getIndicesSettings(String name);
 
     public SearchResponse searchByField(String index, Map<String, Object> query) throws InterruptedException, ExecutionException, TimeoutException;

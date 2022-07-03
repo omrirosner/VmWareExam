@@ -9,6 +9,7 @@ import personal.wmware.exam.common.CommonConfig;
 import personal.wmware.exam.common.Consts;
 import personal.wmware.exam.elasticsearch.client.ElasticsearchClient;
 import personal.wmware.exam.elasticsearch.embedded.EmbeddedElasticConfig;
+import personal.wmware.exam.users.UserType;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -21,10 +22,16 @@ public class Validator {
     private final ElasticsearchClient elasticsearchClient;
     private final EmbeddedElasticConfig elasticConfig;
 
-    public boolean checkForOwner(String ownerId, String password) throws InterruptedException, ExecutionException, TimeoutException {
+    public boolean authenticate(String userId, String password, UserType type) throws InterruptedException, ExecutionException, TimeoutException {
+        String index_settings = "nothing";
+        if (type.equals(UserType.OWNER)) {
+            index_settings = Consts.OWNERS_SETTINGS;
+        } else if (type.equals(UserType.CUSTOMER)) {
+            index_settings = Consts.CUSTOMER_SETTINGS;
+        }
         SearchHits hits = this.elasticsearchClient
-                .searchByField(elasticConfig.getIndexSettings().get(Consts.OWNERS_SETTINGS).getName(),
-                        Map.of("id", ownerId, "password", password)).getHits();
+                .searchByField(elasticConfig.getIndexSettings().get(index_settings).getName(),
+                        Map.of("id", userId, "password", password)).getHits();
 
         return hits.getTotalHits().value > 0;
     }

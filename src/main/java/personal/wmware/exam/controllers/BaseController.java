@@ -1,25 +1,17 @@
 package personal.wmware.exam.controllers;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.elasticsearch.search.SearchHits;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import personal.wmware.exam.common.ActionResponse;
-import personal.wmware.exam.common.Consts;
-import personal.wmware.exam.elasticsearch.client.ElasticsearchClient;
-import personal.wmware.exam.elasticsearch.embedded.EmbeddedElasticConfig;
 
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 @RestController
 @Service
@@ -30,6 +22,13 @@ public abstract class BaseController {
         FieldError fieldError = ex.getFieldError();
         String message = String.format("%s %s", Objects.requireNonNull(fieldError).getField(), fieldError.getDefaultMessage());
         ActionResponse actionResponse = new ActionResponse(message, false);
+        log.error("an error has occurred", ex);
+        return new ResponseEntity<>(actionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    private ResponseEntity<ActionResponse> handleMissingHeader(MissingRequestHeaderException ex) {
+        ActionResponse actionResponse = new ActionResponse(ex.getHeaderName() + " header is missing", false);
         log.error("an error has occurred", ex);
         return new ResponseEntity<>(actionResponse, HttpStatus.BAD_REQUEST);
     }

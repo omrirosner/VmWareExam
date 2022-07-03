@@ -1,7 +1,6 @@
 package personal.wmware.exam.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import personal.wmware.exam.catalogs.CatalogRequest;
 import personal.wmware.exam.common.ActionResponse;
 import personal.wmware.exam.common.CommonConfig;
 import personal.wmware.exam.elasticsearch.client.ElasticsearchClient;
+import personal.wmware.exam.users.UserType;
 
 import javax.validation.Valid;
 import java.util.concurrent.ExecutionException;
@@ -28,7 +28,7 @@ public class CatalogController extends BaseController {
 
     @PostMapping(value = "/catalog/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ActionResponse createCatalog(@RequestHeader("userId") String userId, @RequestHeader("password") String password, @Valid @RequestBody CatalogRequest request) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
-        if (this.validator.checkForOwner(userId, password)) {
+        if (this.validator.authenticate(userId, password, UserType.OWNER)) {
             String catalogIndex = this.insertNewCatalog(request.getCatalogName());
             return new ActionResponse(String.format("created index %s", catalogIndex), true);
         } else {
@@ -38,7 +38,7 @@ public class CatalogController extends BaseController {
 
     @DeleteMapping(value = "/catalog/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ActionResponse deleteCatalog(@RequestHeader("userId") String userId, @RequestHeader("password") String password, @Valid @RequestBody CatalogRequest request) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
-        if (this.validator.checkForOwner(userId, password)) {
+        if (this.validator.authenticate(userId, password, UserType.OWNER)) {
             boolean success = this.deleteCatalog(request.getCatalogName());
             if (success) {
                 return new ActionResponse("deleted catalog", true);
