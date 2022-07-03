@@ -1,66 +1,75 @@
 package personal.wmware.exam.elasticsearch.embedded;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.http.HttpHost;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.node.InternalSettingsPreparer;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeValidationException;
+import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.transport.Netty4Plugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
-import personal.wmware.exam.elasticsearch.embedded.EmbeddedElasticConfig.IndexSettings;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.ResourcePatternUtils;
 import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic;
-import pl.allegro.tech.embeddedelasticsearch.PopularProperties;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 
 import static java.lang.ClassLoader.getSystemResourceAsStream;
-import static pl.allegro.tech.embeddedelasticsearch.IndexSettings.*;
 
-@Component
-@Log4j2
+@Configuration
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Log4j2
 public class EmbeddedElasticsearch {
-    private final EmbeddedElasticConfig configuration;
+    private static class PluginConfigurableNode extends Node {
+
+        protected PluginConfigurableNode(Settings settings, Collection<Class<? extends Plugin>> classpathPlugins) {
+            super(InternalSettingsPreparer.prepareEnvironment(settings, new HashMap<>(), null, null), classpathPlugins, false);
+        }
+    }
 
     @Bean
-    public EmbeddedElastic embbeddedElasticsearch() throws IOException, InterruptedException {
-        EmbeddedElastic.Builder builder = EmbeddedElastic.builder()
-                .withElasticVersion("5.0.0")
-                .withSetting(PopularProperties.TRANSPORT_TCP_PORT, 9350)
-                .withSetting(PopularProperties.CLUSTER_NAME, "local_cluster")
-                .withSetting("path.data", "target/elasticsearch")
-                .withTemplate("catalog", Objects.requireNonNull(getSystemResourceAsStream("catalog_template.json")));
+    public Client client() throws NodeValidationException {
+        Settings settings = Settings.builder()
+                .put("http.cors.enabled", "true")
+                .put("node.name", "es-node")
+                .put("path.data", "target/elasticsearch/data")
+                .put("transport.type", "netty4")
+                .put("path.home", "target/elasticsearch")
+                .put("http.type", "netty4")
+                .build();
 
-        builder = builder.withIndex("catalogfdsf");
-
-        for (IndexSettings settings : configuration.getIndexSettings().values()) {
-            builder = this.addIndex(builder, settings.getName(), settings.getType(), settings.getMappingFile());
-        }
-
-        EmbeddedElastic start = builder.build().start();
-        start.createTemplates();
-        return start;
+        Node node = new PluginConfigurableNode(settings, Collections.singleton(Netty4Plugin.class));
+        node.start();
+        return node.client();
     }
 
-//    @Bean
-//    RestHighLevelClient restHighLevelClient() {
-//        return new RestHighLevelClient(
-//                RestClient.builder(
-//                        new HttpHost("localhost", 9200, "http")).build());
-//    }
+    @Bean
+    public RestHighLevelClient restHighLevelClient() {
+        HttpHost[] hosts = Arrays.stream(new String[]{"localhost:9200"})
+                .map(HttpHost::create)
+                .toArray(HttpHost[]::new);
 
-    private EmbeddedElastic.Builder addIndex(EmbeddedElastic.Builder builder, String name, String type, String pathToMapping) throws IOException {
-        InputStream inputStream = getSystemResourceAsStream(pathToMapping);
-        try {
-            return builder.withIndex(name, builder()
-                    .withType(type, Objects.requireNonNull(inputStream))
-                    .build());
-        } catch (IOException e) {
-            log.error(String.format("failed reading mapping %s for index %s", pathToMapping, name));
-            throw e;
-        }
+        return new RestHighLevelClient(RestClient.builder(hosts));
     }
+
+
 }
