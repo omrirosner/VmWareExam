@@ -1,9 +1,9 @@
 package personal.wmware.exam.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -11,12 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import personal.wmware.exam.catalogs.CatalogRequest;
 import personal.wmware.exam.common.ActionResponse;
 import personal.wmware.exam.common.CommonConfig;
-import personal.wmware.exam.common.Consts;
 import personal.wmware.exam.elasticsearch.client.ElasticsearchClient;
-import personal.wmware.exam.elasticsearch.embedded.EmbeddedElasticConfig;
 
 import javax.validation.Valid;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -27,7 +24,6 @@ import java.util.concurrent.TimeoutException;
 public class CatalogController extends BaseController {
     private final ElasticsearchClient elasticsearchClient;
     private final CommonConfig config;
-    private final EmbeddedElasticConfig elasticConfig;
     private final Validator validator;
 
     @PostMapping(value = "/catalog/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

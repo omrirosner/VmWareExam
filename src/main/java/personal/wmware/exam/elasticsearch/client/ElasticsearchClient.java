@@ -13,7 +13,7 @@ public interface ElasticsearchClient {
 
     IndexSettings getIndicesSettings(String name);
 
-    public SearchResponse searchByField(String index, Map<String, String> query) throws InterruptedException, ExecutionException, TimeoutException;
+    public SearchResponse searchByField(String index, Map<String, Object> query) throws InterruptedException, ExecutionException, TimeoutException;
 
     public <T> void createIndex(String name) throws ExecutionException, InterruptedException;
 

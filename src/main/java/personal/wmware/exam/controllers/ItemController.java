@@ -33,8 +33,19 @@ public class ItemController extends BaseController {
     @PostMapping(value = "/item", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ActionResponse createItem(@Valid @RequestBody CreateItemRequest request, @RequestHeader("userId") String userId, @RequestHeader("password") String password) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
         if (this.validator.checkForOwner(userId, password)) {
-            String createdId = this.insertNewItem(request.getCatalog(), request.getItemModel());
-            return new ActionResponse(String.format("created item %s", createdId), true);
+            String id = UUID.randomUUID().toString();
+            this.insertNewItem(request.getCatalog(), request.getItemModel(), id);
+            return new ActionResponse(String.format("created item %s", id), true);
+        } else {
+            return new ActionResponse("wrong id or password", false);
+        }
+    }
+
+    @PutMapping(value = "/item/{itemId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ActionResponse updateItem(@Valid @RequestBody CreateItemRequest request, @RequestHeader("userId") String userId, @RequestHeader("password") String password, @PathVariable String itemId) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
+        if (this.validator.checkForOwner(userId, password)) {
+            this.insertNewItem(request.getCatalog(), request.getItemModel(), itemId);
+            return new ActionResponse(String.format("updated item %s", itemId), true);
         } else {
             return new ActionResponse("wrong id or password", false);
         }
@@ -55,13 +66,11 @@ public class ItemController extends BaseController {
         }
     }
 
-    private String insertNewItem(String catalog, ItemModel item) throws JsonProcessingException {
-        String id = UUID.randomUUID().toString();
+    private void insertNewItem(String catalog, ItemModel item, String id) throws JsonProcessingException {
         this.elasticsearchClient.insertDocument(
                 item,
                 String.format("%s%s", this.config.getCatalogPrefix(), catalog), "item",
                 id);
-        return id;
     }
 
 

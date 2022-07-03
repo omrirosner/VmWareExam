@@ -62,12 +62,12 @@ public class EmbeddedElasticsearchClient implements ElasticsearchClient {
     }
 
     public void deleteDocument(String index, String id) throws InterruptedException, ExecutionException, TimeoutException {
-        this.client.delete(new DeleteRequest(index,id)).get(5, TimeUnit.SECONDS);
+        this.client.delete(new DeleteRequest(index, id)).get(5, TimeUnit.SECONDS);
     }
 
-    public SearchResponse searchByField(String index, Map<String, String> query) throws InterruptedException, ExecutionException, TimeoutException {
+    public SearchResponse searchByField(String index, Map<String, Object> query) throws InterruptedException, ExecutionException, TimeoutException {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        for (Map.Entry<String, String> entry : query.entrySet()) {
+        for (Map.Entry<String, Object> entry : query.entrySet()) {
             boolQueryBuilder.must(QueryBuilders.termQuery(entry.getKey(), entry.getValue()));
         }
         SearchRequest searchRequest = new SearchRequest(index)
