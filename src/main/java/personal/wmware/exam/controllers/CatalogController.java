@@ -3,21 +3,22 @@ package personal.wmware.exam.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import personal.wmware.exam.catalogs.CreateCatalogRequest;
+import personal.wmware.exam.catalogs.CatalogRequest;
 import personal.wmware.exam.common.ActionResponse;
 import personal.wmware.exam.common.CommonConfig;
+import personal.wmware.exam.common.Consts;
 import personal.wmware.exam.elasticsearch.client.ElasticsearchClient;
+import personal.wmware.exam.elasticsearch.embedded.EmbeddedElasticConfig;
 
 import javax.validation.Valid;
-import java.util.Objects;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 @RestController
 @Service
@@ -26,17 +27,59 @@ import java.util.Objects;
 public class CatalogController extends BaseController {
     private final ElasticsearchClient elasticsearchClient;
     private final CommonConfig config;
+    private final EmbeddedElasticConfig elasticConfig;
 
     @PostMapping(value = "/catalog/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ActionResponse createCatalog(@RequestHeader("userId") String userId, @RequestHeader("password") String password, @Valid @RequestBody CreateCatalogRequest request) throws JsonProcessingException {
-        String catalogIndex = this.insertNewCatalog(request.getCatalogName());
-        return new ActionResponse(String.format("created index %s", catalogIndex), true);
+    public ActionResponse createCatalog(@RequestHeader("userId") String userId, @RequestHeader("password") String password, @Valid @RequestBody CatalogRequest request) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
+        if (this.checkForOwner(userId, password)) {
+            String catalogIndex = this.insertNewCatalog(request.getCatalogName());
+            return new ActionResponse(String.format("created index %s", catalogIndex), true);
+        } else {
+            return new ActionResponse("wrong id or password", false);
+        }
+    }
+
+    @DeleteMapping(value = "/catalog/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ActionResponse deleteCatalog(@RequestHeader("userId") String userId, @RequestHeader("password") String password, @Valid @RequestBody CatalogRequest request) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
+        if (this.checkForOwner(userId, password)) {
+            boolean success = this.deleteCatalog(request.getCatalogName());
+            if (success) {
+                return new ActionResponse("deleted catalog", true);
+            } else {
+                return new ActionResponse("catalog not found", false);
+            }
+        } else {
+            return new ActionResponse("wrong id or password", false);
+
+        }
     }
 
     private String insertNewCatalog(String name) {
         String indexName = String.format("%s%s", config.getCatalogPrefix(), name);
-        this.elasticsearchClient.createIndex(indexName);
+        try {
+            this.elasticsearchClient.createIndex(indexName);
+        } catch (ExecutionException | InterruptedException e) {
+            log.error("failed to create index", e);
+        }
         return indexName;
+    }
+
+    private boolean deleteCatalog(String name) {
+        String indexName = String.format("%s%s", config.getCatalogPrefix(), name);
+        try {
+            return this.elasticsearchClient.deleteIndex(indexName);
+        } catch (ExecutionException | InterruptedException e) {
+            log.error("failed to delete index", e);
+        }
+        return false;
+    }
+
+    private boolean checkForOwner(String ownerId, String password) throws InterruptedException, ExecutionException, TimeoutException {
+        SearchHits hits = this.elasticsearchClient
+                .searchByField(elasticConfig.getIndexSettings().get(Consts.OWNERS_SETTINGS).getName(),
+                        Map.of("id", ownerId, "password", password)).getHits();
+
+        return hits.getTotalHits().value > 0;
     }
 
 

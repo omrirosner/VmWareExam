@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-public class CreateCatalogRequest {
+public class CatalogRequest {
     @NotNull
     private String catalogName;
 }
