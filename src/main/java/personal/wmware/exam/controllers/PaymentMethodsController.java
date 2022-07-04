@@ -48,22 +48,6 @@ public class PaymentMethodsController extends BaseController {
         }
     }
 
-    @PostMapping(value = "/buy/{catalog}/{itemId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ActionResponse buyItem(@Valid @RequestHeader("userId") String userId, @RequestHeader("password") String password, @PathVariable String catalog, @PathVariable String itemId) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
-        if (!this.validator.authenticate(userId, password, UserType.CUSTOMER)) {
-            return new ActionResponse("wrong username or password", false);
-        }
-        if (!this.checkIfUserHasPaymentMethod(userId)) {
-            return new ActionResponse("this user has no payment method", false);
-        }
-        if (!this.checkIfItemIsInStock(catalog, itemId)) {
-            return new ActionResponse("this item is out of stock", false);
-        }
-        this.updateItemStock(catalog, itemId);
-        return new ActionResponse("item was bought and removed 1 from stock", true);
-
-    }
-
     private void updateCreditCard(CreditCard creditCard, String userId) throws JsonProcessingException {
         PaymentMethods paymentMethods = new PaymentMethods(creditCard);
         this.elasticsearchClient.updateJsonField(
@@ -71,27 +55,6 @@ public class PaymentMethodsController extends BaseController {
                 "customers", userId);
     }
 
-    private void updateItemStock(String catalog, String itemId) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
-        ItemModel item = this.queryItem(catalog, itemId);
-        item.setStock(item.getStock() - 1);
-        this.elasticsearchClient.insertDocument(item, this.utils.getCatalogIndex(catalog), "item", itemId);
-    }
 
 
-    private boolean checkIfUserHasPaymentMethod(String userId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
-        SearchHit[] hits = this.elasticsearchClient.searchByField(
-                "customers", Map.of("id", userId)).getHits().getHits();
-        UserDocument userDocument = mapper.readValue(hits[0].getSourceAsString(), UserDocument.class);
-        return !Objects.isNull(userDocument.getCreditCard());
-    }
-
-    private boolean checkIfItemIsInStock(String catalog, String itemId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
-        ItemModel item = this.queryItem(catalog, itemId);
-        return item.getStock() > 0;
-    }
-
-    private ItemModel queryItem(String catalog, String itemId) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
-        String hit = this.elasticsearchClient.getById(this.utils.getCatalogIndex(catalog), itemId).getSourceAsString();
-        return mapper.readValue(hit, ItemModel.class);
-    }
 }
