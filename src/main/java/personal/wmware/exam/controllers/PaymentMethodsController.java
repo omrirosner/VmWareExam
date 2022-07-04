@@ -33,9 +33,6 @@ import java.util.concurrent.TimeoutException;
 public class PaymentMethodsController extends BaseController {
     private final ElasticsearchClient elasticsearchClient;
     private final Validator validator;
-    private final ObjectMapper mapper;
-    private final CommonConfig config;
-    private final Utils utils;
 
     @PutMapping(value = "/payment/creditCard", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ActionResponse updateItem(@Valid @RequestBody CreditCard request, @Valid @RequestHeader("userId") String userId, @RequestHeader("password") String password) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {

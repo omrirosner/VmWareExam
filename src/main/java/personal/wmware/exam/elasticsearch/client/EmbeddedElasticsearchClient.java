@@ -40,7 +40,7 @@ public class EmbeddedElasticsearchClient implements ElasticsearchClient {
 
     public <T> void insertDocument(T object, String index, String type, String id) throws JsonProcessingException {
         String content = mapper.writeValueAsString(object);
-        this.client.index(new IndexRequest(index).id(id).type(type).source(content, XContentType.JSON));
+        this.client.index(new IndexRequest(index).id(id).source(content, XContentType.JSON));
     }
 
     public <T> void updateJsonField(T object, String index, String id) throws JsonProcessingException {
