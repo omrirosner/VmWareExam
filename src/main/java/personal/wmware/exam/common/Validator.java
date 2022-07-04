@@ -1,12 +1,11 @@
-package personal.wmware.exam.controllers;
+package personal.wmware.exam.common;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import personal.wmware.exam.common.CommonConfig;
-import personal.wmware.exam.common.Consts;
+import personal.wmware.exam.common.config.Consts;
 import personal.wmware.exam.elasticsearch.client.ElasticsearchClient;
 import personal.wmware.exam.elasticsearch.embedded.EmbeddedElasticConfig;
 import personal.wmware.exam.users.UserType;

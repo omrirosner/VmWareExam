@@ -1,4 +1,4 @@
-package personal.wmware.exam.common;
+package personal.wmware.exam.common.config;
 
 public class Consts {
     public static final String OWNERS_SETTINGS = "owner";

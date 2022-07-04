@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import personal.wmware.exam.common.ActionResponse;
+import personal.wmware.exam.common.responses.ActionResponse;
 import personal.wmware.exam.elasticsearch.client.ElasticsearchClient;
 import personal.wmware.exam.elasticsearch.embedded.EmbeddedElasticConfig.IndexSettings;
 import personal.wmware.exam.users.CreateStoreUserRequest;

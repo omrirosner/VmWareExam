@@ -7,8 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import personal.wmware.exam.common.ActionResponse;
-import personal.wmware.exam.common.CommonConfig;
+import personal.wmware.exam.common.Utils;
+import personal.wmware.exam.common.Validator;
+import personal.wmware.exam.common.responses.ActionResponse;
 import personal.wmware.exam.elasticsearch.client.ElasticsearchClient;
 import personal.wmware.exam.items.CreateItemRequest;
 import personal.wmware.exam.items.ItemModel;
@@ -25,8 +26,8 @@ import java.util.concurrent.TimeoutException;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ItemController extends BaseController {
     private final ElasticsearchClient elasticsearchClient;
-    private final CommonConfig config;
     private final Validator validator;
+    private final Utils utils;
 
 
     @PostMapping(value = "/item", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -69,13 +70,13 @@ public class ItemController extends BaseController {
         item.setId(id);
         this.elasticsearchClient.insertDocument(
                 item,
-                String.format("%s%s", this.config.getCatalogPrefix(), catalog), "item",
+                utils.getCatalogIndex(catalog), "item",
                 id);
     }
 
 
     private boolean deleteItem(String catalog, String item) {
-        String indexName = String.format("%s%s", config.getCatalogPrefix(), catalog);
+        String indexName = utils.getCatalogIndex(catalog);
         try {
             this.elasticsearchClient.deleteDocument(indexName, item);
             return true;

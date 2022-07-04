@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import personal.wmware.exam.common.ActionResponse;
-import personal.wmware.exam.common.CommonConfig;
+import personal.wmware.exam.common.Utils;
+import personal.wmware.exam.common.responses.ActionResponse;
+import personal.wmware.exam.common.config.CommonConfig;
+import personal.wmware.exam.common.Validator;
 import personal.wmware.exam.elasticsearch.client.ElasticsearchClient;
 import personal.wmware.exam.items.ItemModel;
 import personal.wmware.exam.users.UserType;
@@ -33,6 +35,7 @@ public class PaymentMethodsController extends BaseController {
     private final Validator validator;
     private final ObjectMapper mapper;
     private final CommonConfig config;
+    private final Utils utils;
 
     @PutMapping(value = "/payment/creditCard", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ActionResponse updateItem(@Valid @RequestBody CreditCard request, @Valid @RequestHeader("userId") String userId, @RequestHeader("password") String password) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
@@ -71,7 +74,7 @@ public class PaymentMethodsController extends BaseController {
     private void updateItemStock(String catalog, String itemId) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
         ItemModel item = this.queryItem(catalog, itemId);
         item.setStock(item.getStock() - 1);
-        this.elasticsearchClient.insertDocument(item, String.format("%s%s", this.config.getCatalogPrefix(), catalog), "item", itemId);
+        this.elasticsearchClient.insertDocument(item, this.utils.getCatalogIndex(catalog), "item", itemId);
     }
 
 
@@ -88,7 +91,7 @@ public class PaymentMethodsController extends BaseController {
     }
 
     private ItemModel queryItem(String catalog, String itemId) throws JsonProcessingException, InterruptedException, ExecutionException, TimeoutException {
-        String hit = this.elasticsearchClient.getById(String.format("%s%s", this.config.getCatalogPrefix(), catalog), itemId).getSourceAsString();
+        String hit = this.elasticsearchClient.getById(this.utils.getCatalogIndex(catalog), itemId).getSourceAsString();
         return mapper.readValue(hit, ItemModel.class);
     }
 }

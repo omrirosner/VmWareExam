@@ -9,7 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
-import personal.wmware.exam.common.ActionResponse;
+import personal.wmware.exam.common.responses.ActionResponse;
 
 import java.util.Objects;
 

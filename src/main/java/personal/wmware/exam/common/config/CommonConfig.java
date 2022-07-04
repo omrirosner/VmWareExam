@@ -1,4 +1,4 @@
-package personal.wmware.exam.common;
+package personal.wmware.exam.common.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

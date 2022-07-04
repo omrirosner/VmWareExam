@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import personal.wmware.exam.catalogs.CatalogFetchRequest;
 import personal.wmware.exam.catalogs.CatalogSearchRequest;
-import personal.wmware.exam.common.CommonConfig;
-import personal.wmware.exam.common.ItemSearchResponse;
+import personal.wmware.exam.common.Utils;
+import personal.wmware.exam.common.config.CommonConfig;
+import personal.wmware.exam.common.responses.ItemSearchResponse;
 import personal.wmware.exam.elasticsearch.client.ElasticsearchClient;
 import personal.wmware.exam.items.ItemModel;
 
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class SearchController extends BaseController {
     private final ElasticsearchClient elasticsearchClient;
-    private final CommonConfig config;
+    private final Utils utils;
     private final ObjectMapper mapper;
 
     @GetMapping(value = "/catalog/{catalogName}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -45,7 +46,7 @@ public class SearchController extends BaseController {
                 .builder()
                 .description(request.getDescription())
                 .name(request.getName()).build();
-        SearchResponse searchResponse = this.elasticsearchClient.searchByField(String.format("%s%s", this.config.getCatalogPrefix(), catalogName),
+        SearchResponse searchResponse = this.elasticsearchClient.searchByField(utils.getCatalogIndex(catalogName),
                 mapper.convertValue(fetchRequest, new TypeReference<Map<String, Object>>() {
                 }));
 

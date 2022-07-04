@@ -1,4 +1,4 @@
-package personal.wmware.exam.common;
+package personal.wmware.exam.common.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
